@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Base class for all AntiGravity modules.
+ * Base class for all Gravity modules.
  * Extend this class and register settings in the constructor.
  */
 public abstract class Module {

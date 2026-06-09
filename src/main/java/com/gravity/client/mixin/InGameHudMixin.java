@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Hooks into InGameHud to render the AntiGravity HUD overlay (arraylist).
+ * Hooks into InGameHud to render the Gravity HUD overlay (arraylist).
  */
 @Mixin(InGameHud.class)
 public class InGameHudMixin {

@@ -7,7 +7,7 @@ import net.minecraft.util.math.Vec3d;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * ⭐ SIGNATURE MOD — AntiGravity
+ * ⭐ SIGNATURE MOD — Gravity
  * Alters gravity physics for advanced movement.
  */
 public class GravityMod extends Module {

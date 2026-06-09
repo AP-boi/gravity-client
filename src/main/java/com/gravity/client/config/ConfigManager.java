@@ -54,7 +54,7 @@ public class ConfigManager {
 
             Files.writeString(configFile, gson.toJson(root));
         } catch (IOException e) {
-            System.err.println("[AntiGravity] Failed to save config: " + e.getMessage());
+            System.err.println("[Gravity] Failed to save config: " + e.getMessage());
         }
     }
 
@@ -101,7 +101,7 @@ public class ConfigManager {
                 }
             }
         } catch (Exception e) {
-            System.err.println("[AntiGravity] Failed to load config: " + e.getMessage());
+            System.err.println("[Gravity] Failed to load config: " + e.getMessage());
         }
     }
 }

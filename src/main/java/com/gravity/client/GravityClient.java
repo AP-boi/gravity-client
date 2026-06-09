@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * AntiGravity Client v2.0
+ * Gravity Client v1.0
  * A premium Minecraft utility client mod for Fabric.
  */
 public class GravityClient implements ClientModInitializer {

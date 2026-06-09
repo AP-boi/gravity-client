@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * AntiGravity ClickGUI — dark themed category panel GUI.
+ * Gravity ClickGUI — dark themed category panel GUI.
  * Press Right Shift to open.
  */
 public class ClickGuiScreen extends Screen {

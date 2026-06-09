@@ -116,7 +116,7 @@ public class ModuleManager {
                 try {
                     module.onTick();
                 } catch (Exception e) {
-                    System.err.println("[AntiGravity] Error in " + module.getName() + ".onTick(): " + e.getMessage());
+                    System.err.println("[Gravity] Error in " + module.getName() + ".onTick(): " + e.getMessage());
                 }
             }
         }
