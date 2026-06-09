@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.gravity.client.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "GameRendererMixin",
+    "InGameHudMixin",
+    "KeyboardMixin",
+    "LivingEntityMixin",
+    "MinecraftClientMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
