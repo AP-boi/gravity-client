@@ -7,6 +7,7 @@ import com.gravity.client.setting.*;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,9 @@ public class ClickGuiScreen extends Screen {
     // Setting interaction
     private NumberSetting draggingSlider = null;
     private int sliderX, sliderWidth;
+    
+    // Keybind binding state
+    private static Module bindingModule = null;
 
     public ClickGuiScreen() {
         super(Text.literal("Gravity Client"));
@@ -46,18 +50,26 @@ public class ClickGuiScreen extends Screen {
 
     @Override
     protected void init() {
-        panels.clear();
-        int startX = 20;
-        int startY = 30;
-        int panelWidth = 150;
-        int gap = 4;
+        if (panels.isEmpty()) {
+            int startX = 20;
+            int startY = 30;
+            int panelWidth = 150;
+            int gap = 4;
 
-        for (Category category : Category.values()) {
-            List<Module> modules = GravityClient.getInstance()
-                    .getModuleManager().getModulesByCategory(category);
-            panels.add(new Panel(category, modules, startX, startY, panelWidth));
-            startX += panelWidth + gap;
+            for (Category category : Category.values()) {
+                List<Module> modules = GravityClient.getInstance()
+                        .getModuleManager().getModulesByCategory(category);
+                panels.add(new Panel(category, modules, startX, startY, panelWidth));
+                startX += panelWidth + gap;
+            }
+        } else {
+            for (Panel panel : panels) {
+                panel.modules.clear();
+                panel.modules.addAll(GravityClient.getInstance()
+                        .getModuleManager().getModulesByCategory(panel.category));
+            }
         }
+        bindingModule = null;
     }
 
     @Override
@@ -102,6 +114,19 @@ public class ClickGuiScreen extends Screen {
             int y = panel.y + 22;
             for (Module module : panel.modules) {
                 int rowHeight = 16;
+
+                // Check keybind badge click first!
+                String kb = module.getKeyBindName();
+                int kbWidth = textRenderer.getWidth(kb);
+                int kbX = panel.x + panel.width - kbWidth - 10;
+                int kbY = y + 2;
+
+                if (mx >= kbX && mx <= panel.x + panel.width - 4 && my >= kbY && my <= y + 13) {
+                    if (button == 0) {
+                        bindingModule = module;
+                        return true;
+                    }
+                }
 
                 // Module row click
                 if (mx >= panel.x && mx <= panel.x + panel.width && my >= y && my <= y + rowHeight) {
@@ -188,6 +213,25 @@ public class ClickGuiScreen extends Screen {
     }
 
     @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (bindingModule != null) {
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+                bindingModule = null;
+            } else if (keyCode == GLFW.GLFW_KEY_DELETE || keyCode == GLFW.GLFW_KEY_BACKSPACE) {
+                bindingModule.setKeyBind(-1);
+                GravityClient.getInstance().getConfigManager().save();
+                bindingModule = null;
+            } else {
+                bindingModule.setKeyBind(keyCode);
+                GravityClient.getInstance().getConfigManager().save();
+                bindingModule = null;
+            }
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
     public boolean shouldPause() {
         return false;
     }
@@ -239,12 +283,12 @@ public class ClickGuiScreen extends Screen {
                 ctx.drawText(font, module.getName(), x + 6, curY + 4, nameColor, false);
 
                 // Keybind badge
-                if (module.getKeyBind() != -1) {
-                    String kb = module.getKeyBindName();
-                    int kbWidth = font.getWidth(kb);
-                    ctx.fill(x + width - kbWidth - 10, curY + 2, x + width - 4, curY + 13, BG_DEEP);
-                    ctx.drawText(font, kb, x + width - kbWidth - 7, curY + 4, TEXT_3, false);
-                }
+                String kb = bindingModule == module ? "?" : module.getKeyBindName();
+                int kbWidth = font.getWidth(kb);
+                int kbX = x + width - kbWidth - 10;
+                int kbY = curY + 2;
+                ctx.fill(kbX, kbY, x + width - 4, curY + 13, BG_DEEP);
+                ctx.drawText(font, kb, kbX + 3, curY + 4, bindingModule == module ? ACCENT : (module.getKeyBind() == -1 ? TEXT_3 : ACCENT2), false);
 
                 // Enabled indicator dot
                 if (module.isEnabled()) {
@@ -254,7 +298,7 @@ public class ClickGuiScreen extends Screen {
                 // Settings arrow if has settings
                 if (!module.getSettings().isEmpty()) {
                     ctx.drawText(font, isExpanded(module) ? "▾" : "›",
-                            x + width - (module.getKeyBind() != -1 ? font.getWidth(module.getKeyBindName()) + 16 : 10),
+                            x + width - font.getWidth(bindingModule == module ? "?" : module.getKeyBindName()) - 16,
                             curY + 4, TEXT_3, false);
                 }
 
@@ -280,7 +324,8 @@ public class ClickGuiScreen extends Screen {
                             int slX = x + 6, slY = curY + 13, slW = width - 12;
                             ctx.fill(slX, slY, slX + slW, slY + 4, BG_ACTIVE);
                             // Filled portion
-                            double ratio = (ns.getValue() - ns.getMin()) / (ns.getMax() - ns.getMin());
+                            double maxMinDiff = ns.getMax() - ns.getMin();
+                            double ratio = maxMinDiff == 0 ? 0 : (ns.getValue() - ns.getMin()) / maxMinDiff;
                             ctx.fill(slX, slY, slX + (int)(slW * ratio), slY + 4, ACCENT);
                             // Thumb
                             int thumbX = slX + (int)(slW * ratio) - 2;
